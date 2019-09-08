@@ -1,0 +1,46 @@
+﻿body {
+    margin: 20px;
+}
+
+.game {
+    display: flex;
+    flex-direction: row;
+}
+
+.game-board {
+    margin-right: 10px;
+}
+
+.numberButtons {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-group {
+    margin-bottom: 5px;
+}
+
+.square {
+    padding: 0;
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border: 1px solid #999;
+    float: left;
+    /* margin-right: -1px;
+    margin-top: -1px; */
+}
+
+.square.active {
+    border: 1px solid #00f;
+}
+
+.grid {
+    border: 2px solid #aaa;
+}
+
+.grid-row:after {
+    clear: both;
+    content: "";
+    display: table;
+}
