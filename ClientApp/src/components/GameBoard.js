@@ -1,12 +1,17 @@
 ﻿import React, { Component } from 'react';
+import * as BoardUtilities from './BoardUtilities';
 
 function Square(props) {
     let className = "square";
     if (props.isActive) {
         className += " active";
     }
+    let cellValue = props.cellValue;
+    if (!cellValue) {
+        cellValue = '?';
+    }
     return (
-        <button className={className} onClick={props.onClick}>?</button>
+        <button className={className} onClick={props.onClick}>{cellValue}</button>
     );
 }
 
@@ -25,8 +30,9 @@ export class GameBoard extends Component {
 
                 const isActive = row === this.props.active.row && col === this.props.active.col;
 
-                children.push(<td key={row * 3 + col}><Square isActive={isActive} onClick={() =>
-                    this.props.onCellClick(row, col)} /></td>);
+                children.push(<td key={row * 3 + col}><Square cellValue={
+                    this.props.cells[BoardUtilities.gridValuesToArrayIndex(row, col)].currentValue}
+                    isActive={isActive} onClick={() => this.props.onCellClick(row, col)} /></td>);
             }
 
             table.push(<tr key={`row${row}`}>{children}</tr>);

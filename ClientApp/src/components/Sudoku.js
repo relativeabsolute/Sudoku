@@ -1,15 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { CellStatus } from './CellStatus';
 import { GameBoard } from './GameBoard';
+import * as BoardUtilities from './BoardUtilities';
 import './Sudoku.css';
-
-function gridValuesToArrayIndex(row, col) {
-    return row * 9 + col;
-}
-
-function isInBounds(row, col) {
-    return row >= 0 && row < 9 && col >= 0 && col < 9;
-}
 
 export class Sudoku extends Component {
     displayName = Sudoku.name
@@ -19,8 +12,11 @@ export class Sudoku extends Component {
         let cells = [];
         const sideLength = 9;
         for (let i = 0; i < sideLength * sideLength; i++) {
-            const values = Array(sideLength).fill(false);
-            cells.push(values);
+            const possibilityValues = Array(sideLength).fill(false);
+            cells.push({
+                possibilities: possibilityValues,
+                currentValue: null
+            });
         }
         this.state = {
             cells: cells,
@@ -31,18 +27,18 @@ export class Sudoku extends Component {
     render() {
         const activeRow = this.state.active.row;
         const activeCol = this.state.active.col;
-        const index = gridValuesToArrayIndex(activeRow, activeCol);
+        const index = BoardUtilities.gridValuesToArrayIndex(activeRow, activeCol);
 
         let cellStatus = "";
-        if (isInBounds(activeRow, activeCol)) {
-            cellStatus = <CellStatus activePossibilities={this.state.cells[index]}
+        if (BoardUtilities.isInBounds(activeRow, activeCol)) {
+            cellStatus = <CellStatus activePossibilities={this.state.cells[index].possibilities}
                 onPossibilityClick={(clickedNum, isPossible) => this.handlePossibilityClick(clickedNum, isPossible)} />;
         }
 
         return (
             <div className="game">
                 <div className="game-board">
-                    <GameBoard active={this.state.active} onCellClick={(row, col) => this.handleCellClick(row, col)} />
+                    <GameBoard cells={this.state.cells} active={this.state.active} onCellClick={(row, col) => this.handleCellClick(row, col)} />
                 </div>
                 <div className="cell-status">
                     {cellStatus}
@@ -62,8 +58,8 @@ export class Sudoku extends Component {
     handlePossibilityClick(clickedNum, isPossible) {
         let newCells = this.state.cells;
         const active = this.state.active;
-        const index = gridValuesToArrayIndex(active.row, active.col);
-        newCells[index][clickedNum] = !isPossible;
+        const index = BoardUtilities.gridValuesToArrayIndex(active.row, active.col);
+        newCells[index].possibilities[clickedNum] = !isPossible;
         this.setState({
             cells: newCells
         });

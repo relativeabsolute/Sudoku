@@ -11,6 +11,7 @@ namespace Sudoku.Controllers
     [ApiController]
     public class PuzzleGeneratorController : Controller
     {
+        [HttpGet("[action]")]
         public JsonResult Generate()
         {
             SudokuGrid grid = SudokuGrid.GeneratePuzzle();
