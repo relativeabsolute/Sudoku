@@ -1,15 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { CellStatus } from './CellStatus';
 import { GameBoard } from './GameBoard';
+import * as BoardUtilities from './BoardUtilities';
 import './Sudoku.css';
-
-function gridValuesToArrayIndex(row, col) {
-    return row * 9 + col;
-}
-
-function isInBounds(row, col) {
-    return row >= 0 && row < 9 && col >= 0 && col < 9;
-}
 
 export class Sudoku extends Component {
     displayName = Sudoku.name
@@ -17,32 +10,36 @@ export class Sudoku extends Component {
     constructor(props) {
         super(props);
         let cells = [];
-        const sideLength = 9;
-        for (let i = 0; i < sideLength * sideLength; i++) {
-            const values = Array(sideLength).fill(false);
-            cells.push(values);
+        for (let i = 0; i < BoardUtilities.SIDE_LENGTH * BoardUtilities.SIDE_LENGTH; i++) {
+            const possibilityValues = Array(BoardUtilities.SIDE_LENGTH).fill(false);
+            cells.push({
+                possibilities: possibilityValues,
+                currentValue: null
+            });
         }
         this.state = {
             cells: cells,
-            active: { row: -1, col: -1 }
+            active: { row: -1, col: -1 },
+            loaded: false
         }
     }
 
     render() {
+        // TODO: handle loaded or not loaded
         const activeRow = this.state.active.row;
         const activeCol = this.state.active.col;
-        const index = gridValuesToArrayIndex(activeRow, activeCol);
+        const index = BoardUtilities.gridValuesToArrayIndex(activeRow, activeCol);
 
         let cellStatus = "";
-        if (isInBounds(activeRow, activeCol)) {
-            cellStatus = <CellStatus activePossibilities={this.state.cells[index]}
+        if (BoardUtilities.isInBounds(activeRow, activeCol)) {
+            cellStatus = <CellStatus activePossibilities={this.state.cells[index].possibilities}
                 onPossibilityClick={(clickedNum, isPossible) => this.handlePossibilityClick(clickedNum, isPossible)} />;
         }
 
         return (
             <div className="game">
                 <div className="game-board">
-                    <GameBoard active={this.state.active} onCellClick={(row, col) => this.handleCellClick(row, col)} />
+                    <GameBoard cells={this.state.cells} active={this.state.active} onCellClick={(row, col) => this.handleCellClick(row, col)} />
                 </div>
                 <div className="cell-status">
                     {cellStatus}
@@ -62,10 +59,41 @@ export class Sudoku extends Component {
     handlePossibilityClick(clickedNum, isPossible) {
         let newCells = this.state.cells;
         const active = this.state.active;
-        const index = gridValuesToArrayIndex(active.row, active.col);
-        newCells[index][clickedNum] = !isPossible;
+        const index = BoardUtilities.gridValuesToArrayIndex(active.row, active.col);
+        newCells[index].possibilities[clickedNum] = !isPossible;
         this.setState({
             cells: newCells
         });
+    }
+
+    handleSuccessfulPuzzleRequest(result) {
+        // result is a 9x9 array of cell values
+        // we need to fill in the values of the state's cell objects
+        let newCells = this.state.cells;
+        for (let row = 0; row < BoardUtilities.SIDE_LENGTH; row++) {
+            for (let col = 0; col < BoardUtilities.SIDE_LENGTH; col++) {
+                const index = BoardUtilities.gridValuesToArrayIndex(row, col);
+                newCells[index].currentValue = result[row][col];
+            }
+        }
+        this.setState({
+            loaded: true,
+            cells: newCells
+        });
+    }
+
+    componentDidMount() {
+        fetch("api/PuzzleGenerator/Generate")
+            .then(result => result.json())
+            .then(
+                (result) => {
+                    this.handleSuccessfulPuzzleRequest(result);
+                },
+                (error) => {
+                    this.setState({
+                        loaded: true,
+                        error
+                    });
+                });
     }
 }
