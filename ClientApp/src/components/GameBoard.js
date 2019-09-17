@@ -3,12 +3,17 @@ import * as BoardUtilities from './BoardUtilities';
 
 function Square(props) {
     let className = "square";
-    if (props.isActive) {
-        className += " active";
-    }
     let cellValue = props.cellValue;
+    // TODO: differentiate between user-filled in values and values provided by the puzzle
     if (!cellValue) {
         cellValue = '?';
+        if (!props.isActive) {
+            className += " to-fill";
+        } else {
+            className += " active";
+        }
+    } else if (props.isInvalid) {
+        className += " invalid";
     }
     return (
         <button className={className} onClick={props.onClick}>{cellValue}</button>
@@ -18,21 +23,23 @@ function Square(props) {
 export class GameBoard extends Component {
     displayName = GameBoard.name
 
-    createGrid(gridRow, gridCol) {
+    createGrid(gridCell) {
         let table = [];
 
         for (let i = 0; i < 3; i++) {
             let children = [];
 
-            let row = gridRow * 3 + i;
+            const row = gridCell.row * 3 + i;
             for (let j = 0; j < 3; j++) {
-                let col = gridCol * 3 + j;
+                let curCell = { row: row, col: gridCell.col * 3 + j };
 
-                const isActive = row === this.props.active.row && col === this.props.active.col;
+                const isActive = curCell.row === this.props.active.row && curCell.col === this.props.active.col;
+                const isInvalid = this.props.invalid_cells.findIndex(
+                    (cell) => BoardUtilities.cellsMatch(cell, curCell)) > -1;
 
-                children.push(<td key={row * 3 + col}><Square cellValue={
-                    this.props.cells[BoardUtilities.gridValuesToArrayIndex(row, col)].currentValue}
-                    isActive={isActive} onClick={() => this.props.onCellClick(row, col)} /></td>);
+                children.push(<td key={curCell.row * 3 + curCell.col}><Square cellValue={
+                    this.props.cells[BoardUtilities.gridValuesToArrayIndex(curCell)].currentValue}
+                    isActive={isActive} isInvalid={isInvalid} onClick={() => this.props.onCellClick(curCell)} /></td>);
             }
 
             table.push(<tr key={`row${row}`}>{children}</tr>);
@@ -48,8 +55,9 @@ export class GameBoard extends Component {
             let children = [];
 
             for (let j = 0; j < 3; j++) {
+                const cell = { row: i, col: j };
                 children.push(<td key={`grid${i},${j}`}>
-                    <table className="grid"><tbody>{this.createGrid(i, j)}</tbody></table>
+                    <table className="grid"><tbody>{this.createGrid(cell)}</tbody></table>
                 </td>);
             }
 

@@ -17,21 +17,27 @@ export class Sudoku extends Component {
                 currentValue: null
             });
         }
+        let number_locations = {};
+        for (let i = 0; i < BoardUtilities.SIDE_LENGTH; i++) {
+            number_locations[i + 1] = [];
+        }
+
         this.state = {
             cells: cells,
             active: { row: -1, col: -1 },
-            loaded: false
+            loaded: false,
+            invalid_cells: [],
+            number_locations: number_locations
         }
     }
 
     render() {
         // TODO: handle loaded or not loaded
-        const activeRow = this.state.active.row;
-        const activeCol = this.state.active.col;
-        const index = BoardUtilities.gridValuesToArrayIndex(activeRow, activeCol);
+        const active = this.state.active;
+        const index = BoardUtilities.gridValuesToArrayIndex(active);
 
         let cellStatus = "";
-        if (BoardUtilities.isInBounds(activeRow, activeCol)) {
+        if (BoardUtilities.isInBounds(active)) {
             cellStatus = <CellStatus activePossibilities={this.state.cells[index].possibilities}
                 onPossibilityClick={(clickedNum, isPossible) => this.handlePossibilityClick(clickedNum, isPossible)} />;
         }
@@ -39,7 +45,7 @@ export class Sudoku extends Component {
         return (
             <div className="game">
                 <div className="game-board">
-                    <GameBoard cells={this.state.cells} active={this.state.active} onCellClick={(row, col) => this.handleCellClick(row, col)} />
+                    <GameBoard cells={this.state.cells} invalid_cells={this.state.invalid_cells} active={this.state.active} onCellClick={(cell) => this.handleCellClick(cell)} />
                 </div>
                 <div className="cell-status">
                     {cellStatus}
@@ -48,19 +54,33 @@ export class Sudoku extends Component {
             );
     }
 
-    handleCellClick(row, col) {
+    handleCellClick(cell) {
         this.setState({
-            active: {
-                row: row, col: col
-            }
+            active: cell
+        });
+    }
+
+    checkValid(checkCell, num) {
+        let matches = this.state.number_locations[num].filter((cell) => {
+            return cell.row === checkCell.row ||
+                cell.col === checkCell.col ||
+                BoardUtilities.blocksMatch(cell, checkCell);
+        });
+        this.setState({
+            invalid_cells: matches
         });
     }
 
     handlePossibilityClick(clickedNum, isPossible) {
         let newCells = this.state.cells;
         const active = this.state.active;
-        const index = BoardUtilities.gridValuesToArrayIndex(active.row, active.col);
-        newCells[index].possibilities[clickedNum] = !isPossible;
+        const index = BoardUtilities.gridValuesToArrayIndex(active);
+        const newVal = !isPossible;
+        if (newVal) {
+            // TODO: should do something with CellStatus if the number isn't valid
+            this.checkValid(active, clickedNum + 1);
+        }
+        newCells[index].possibilities[clickedNum] = newVal;
         this.setState({
             cells: newCells
         });
@@ -70,15 +90,22 @@ export class Sudoku extends Component {
         // result is a 9x9 array of cell values
         // we need to fill in the values of the state's cell objects
         let newCells = this.state.cells;
+        let newLocations = this.state.number_locations;
         for (let row = 0; row < BoardUtilities.SIDE_LENGTH; row++) {
             for (let col = 0; col < BoardUtilities.SIDE_LENGTH; col++) {
-                const index = BoardUtilities.gridValuesToArrayIndex(row, col);
+                const cell = { row: row, col: col };
+                const value = result[row][col];
+                const index = BoardUtilities.gridValuesToArrayIndex(cell);
                 newCells[index].currentValue = result[row][col];
+                if (value > 0) {
+                    newLocations[value].push(cell);
+                }
             }
         }
         this.setState({
             loaded: true,
-            cells: newCells
+            cells: newCells,
+            number_locations: newLocations
         });
     }
 

@@ -26,6 +26,7 @@
     height: 50px;
     background: #fff;
     border: 1px solid #999;
+    font-size: 20pt;
     float: left;
     /* margin-right: -1px;
     margin-top: -1px; */
@@ -35,8 +36,16 @@
     border: 1px solid #00f;
 }
 
+.square.to-fill {
+    color: #aaa;
+}
+
+.square.invalid {
+    border: 1px solid #f00;
+}
+
 .grid {
-    border: 2px solid #aaa;
+    border: 1px solid #aaa;
 }
 
 .grid-row:after {
