@@ -34,12 +34,7 @@ namespace Sudoku.SudokuModel
         public TKey this[TKey key]
         {
             get {
-                TKey result;
-                if (forwardMapping.TryGetValue(key, out result))
-                {
-                    return result;
-                }
-                return default;
+                return forwardMapping[key];                
             }
         }
 

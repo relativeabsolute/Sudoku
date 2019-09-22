@@ -1,4 +1,6 @@
 ﻿import React, { Component } from 'react';
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 export class CellStatus extends Component {
     displayName = CellStatus.name
@@ -7,8 +9,8 @@ export class CellStatus extends Component {
         let children = [];
         for (let i = minNum; i < maxNum; i++) {
             const possible = this.props.activePossibilities[i];
-            let btnClass = possible ? "btn-primary" : "btn-secondary";
-            children.push(<button onClick={() => this.props.onPossibilityClick(i, possible)} key={`btn${i}`} className={`btn ${btnClass}`}>{i + 1}</button>);
+            children.push(<Button key={`btn${i}`} onClick={() => this.props.onPossibilityClick(i, possible)}
+                variant={possible ? "primary" : "secondary"}>{i + 1}</Button>)
         }
 
         return children;
@@ -20,7 +22,7 @@ export class CellStatus extends Component {
         for (let i = 0; i < 3; i++) {
             const minNum = (i * 3);
             const maxNum = minNum + 3;
-            children.push(<div key={`btn-row${i}`} className="btn-group">{this.renderRow(minNum, maxNum)}</div>);
+            children.push(<ButtonGroup key={`btn-row${i}`}>{this.renderRow(minNum, maxNum)}</ButtonGroup>);
         }
 
         return children;
