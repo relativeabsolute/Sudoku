@@ -1,6 +1,12 @@
 ﻿export const SIDE_LENGTH = 9;
 export const BLOCK_LENGTH = 3;
 
+export const CellStatus = {
+    UNFILLED: 0,
+    PROVIDED: 1,
+    USERFILLED: 2
+};
+
 export function gridValuesToArrayIndex(cell) {
     return cell.row * SIDE_LENGTH + cell.col;
 }

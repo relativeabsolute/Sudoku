@@ -14,7 +14,8 @@ export class Sudoku extends Component {
             const possibilityValues = Array(BoardUtilities.SIDE_LENGTH).fill(false);
             cells.push({
                 possibilities: possibilityValues,
-                currentValue: null
+                currentValue: null,
+                status: BoardUtilities.CellStatus.UNFILLED
             });
         }
         let number_locations = {};
@@ -37,7 +38,8 @@ export class Sudoku extends Component {
         const index = BoardUtilities.gridValuesToArrayIndex(active);
 
         let cellStatus = "";
-        if (BoardUtilities.isInBounds(active)) {
+        if (BoardUtilities.isInBounds(active) &&
+            this.state.cells[index].status != BoardUtilities.CellStatus.PROVIDED) {
             cellStatus = <CellStatus activePossibilities={this.state.cells[index].possibilities}
                 onPossibilityClick={(clickedNum, isPossible) => this.handlePossibilityClick(clickedNum, isPossible)} />;
         }
@@ -99,6 +101,7 @@ export class Sudoku extends Component {
                 newCells[index].currentValue = result[row][col];
                 if (value > 0) {
                     newLocations[value].push(cell);
+                    newCells[index].status = BoardUtilities.CellStatus.PROVIDED;
                 }
             }
         }
