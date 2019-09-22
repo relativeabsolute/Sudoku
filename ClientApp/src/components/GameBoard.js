@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+// not using react bootstrap table as it doesn't provide any benefit
 import * as BoardUtilities from './BoardUtilities';
 
 function Square(props) {
@@ -37,7 +38,7 @@ export class GameBoard extends Component {
                 const isInvalid = this.props.invalid_cells.findIndex(
                     (cell) => BoardUtilities.cellsMatch(cell, curCell)) > -1;
 
-                children.push(<td key={curCell.row * 3 + curCell.col}><Square cellValue={
+                children.push(<td key={curCell.row * 3 + curCell.col} className="number-cell"><Square cellValue={
                     this.props.cells[BoardUtilities.gridValuesToArrayIndex(curCell)].currentValue}
                     isActive={isActive} isInvalid={isInvalid} onClick={() => this.props.onCellClick(curCell)} /></td>);
             }
@@ -68,7 +69,7 @@ export class GameBoard extends Component {
 
     render() {
         return (
-            <table>
+            <table className="grid">
                 <tbody>
                     {this.createTable()}
                 </tbody>

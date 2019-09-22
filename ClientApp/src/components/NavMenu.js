@@ -1,36 +1,24 @@
 ﻿import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { Glyphicon, Nav, Navbar, NavItem } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
-import './NavMenu.css';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
 
 export class NavMenu extends Component {
   displayName = NavMenu.name
-
+  // TODO: use react-icons to replace the old glyphicons
   render() {
     return (
-      <Navbar inverse fixedTop fluid collapseOnSelect>
-        <Navbar.Header>
-          <Navbar.Brand>
-            <Link to={'/'}>Sudoku</Link>
-          </Navbar.Brand>
-          <Navbar.Toggle />
-        </Navbar.Header>
-        <Navbar.Collapse>
-          <Nav>
-            <LinkContainer to={'/'} exact>
-              <NavItem>
-                <Glyphicon glyph='home' /> Home
-              </NavItem>
-            </LinkContainer>
-            <LinkContainer to={'/play'}>
-              <NavItem>
-                <Glyphicon glyph='education' /> Play Sudoku
-              </NavItem>
-            </LinkContainer>
+          <Nav className="mr-auto" fill>
+            <Nav.Item>
+              <Nav.Link href="/">
+                  Home
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link href="/play">
+                Play Sudoku
+              </Nav.Link>
+            </Nav.Item>
           </Nav>
-        </Navbar.Collapse>
-      </Navbar>
     );
   }
 }
