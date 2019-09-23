@@ -4,17 +4,26 @@ import * as BoardUtilities from './BoardUtilities';
 
 function Square(props) {
     let className = "square";
-    let cellValue = props.cellValue;
+    let cellValue = props.cellValue.currentValue;
     // TODO: differentiate between user-filled in values and values provided by the puzzle
-    if (!cellValue) {
-        cellValue = '?';
-        if (!props.isActive) {
-            className += " to-fill";
-        } else {
-            className += " active";
-        }
+    if (props.isActive) {
+        className += " active";
     } else if (props.isInvalid) {
         className += " invalid";
+    }
+    if (!cellValue) {
+        cellValue = '?';
+    }
+    switch (props.cellValue.status) {
+        case BoardUtilities.CellStatus.UNFILLED:
+            className += " to-fill";
+            break;
+        case BoardUtilities.CellStatus.USERFILLED:
+            className += " user-filled";
+            break;
+        // don't think we need a style change for provided cells
+        case BoardUtilities.CellStatus.PROVIDED:
+            break;
     }
     return (
         <button className={className} onClick={props.onClick}>{cellValue}</button>
@@ -32,14 +41,16 @@ export class GameBoard extends Component {
 
             const row = gridCell.row * 3 + i;
             for (let j = 0; j < 3; j++) {
-                let curCell = { row: row, col: gridCell.col * 3 + j };
+                const curCell = { row: row, col: gridCell.col * 3 + j };
+                const curIndex = BoardUtilities.gridValuesToArrayIndex(curCell);
 
                 const isActive = curCell.row === this.props.active.row && curCell.col === this.props.active.col;
                 const isInvalid = this.props.invalid_cells.findIndex(
                     (cell) => BoardUtilities.cellsMatch(cell, curCell)) > -1;
 
-                children.push(<td key={curCell.row * 3 + curCell.col} className="number-cell"><Square cellValue={
-                    this.props.cells[BoardUtilities.gridValuesToArrayIndex(curCell)].currentValue}
+                const cell = this.props.cells[curIndex];
+
+                children.push(<td key={curCell.row * 3 + curCell.col} className="number-cell"><Square cellValue={cell}
                     isActive={isActive} isInvalid={isInvalid} onClick={() => this.props.onCellClick(curCell)} /></td>);
             }
 

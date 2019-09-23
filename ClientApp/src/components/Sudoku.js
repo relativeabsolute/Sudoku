@@ -23,6 +23,7 @@ export class Sudoku extends Component {
             number_locations[i + 1] = [];
         }
 
+        // TODO: unsure if each cell should have a boolean for active or valid
         this.state = {
             cells: cells,
             active: { row: -1, col: -1 },
@@ -41,13 +42,15 @@ export class Sudoku extends Component {
         if (BoardUtilities.isInBounds(active) &&
             this.state.cells[index].status != BoardUtilities.CellStatus.PROVIDED) {
             cellStatus = <CellStatus activePossibilities={this.state.cells[index].possibilities}
-                onPossibilityClick={(clickedNum, isPossible) => this.handlePossibilityClick(clickedNum, isPossible)} />;
+                onPossibilityClick={(clickedNum, isPossible) => this.handlePossibilityClick(clickedNum, isPossible)}
+                onSetValueClick={(eventKey, event) => this.handleSetValueClick(eventKey)} />;
         }
 
         return (
             <div className="game">
                 <div className="game-board">
-                    <GameBoard cells={this.state.cells} invalid_cells={this.state.invalid_cells} active={this.state.active} onCellClick={(cell) => this.handleCellClick(cell)} />
+                    <GameBoard cells={this.state.cells} invalid_cells={this.state.invalid_cells}
+                        active={this.state.active} onCellClick={(cell) => this.handleCellClick(cell)} />
                 </div>
                 <div className="cell-status">
                     {cellStatus}
@@ -70,6 +73,27 @@ export class Sudoku extends Component {
         });
         this.setState({
             invalid_cells: matches
+        });
+    }
+
+    // TODO: fix inconsistency between the clickedNum in setValue and possibility
+    handleSetValueClick(clickedNum) {
+        let active = this.state.active;
+        let index = BoardUtilities.gridValuesToArrayIndex(active);
+
+        // TODO: check if value is valid
+
+        let newCells = this.state.cells;
+        let newLocations = this.state.number_locations;
+        newCells[index].currentValue = clickedNum;
+        newCells[index].status = BoardUtilities.CellStatus.USERFILLED;
+        newCells[index].possibilities = Array(BoardUtilities.SIDE_LENGTH).fill(false);
+
+        // TODO: remove the possibility of multiple dictionary keys containing the same cell
+        newLocations[clickedNum].push(active);
+        this.setState({
+            cells: newCells,
+            number_locations: newLocations
         });
     }
 

@@ -44,6 +44,10 @@
     border: 1px solid #f00;
 }
 
+.square.user-filled {
+    color: #66f;
+}
+
 .grid {
     border: 1px solid #aaa;
 }
